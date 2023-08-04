@@ -10,11 +10,19 @@ intents.members = True
 bot = commands.Bot(command_prefix=".", intents=intents)
 
 
-# Commands
-# @bot.event
-# async def on_command_error(ctx, error):
-#     pass
+# Events
+@bot.event
+async def on_ready():
+    bot.tree.copy_global_to(guild=os.getenv("GUILD_ID"))
+    await bot.tree.sync(guild=os.getenv("GUILD_ID"))
+    # await bot.load_extension("operator_data")
 
+
+@bot.event
+async def on_command_error(ctx, error):
+    pass
+
+# Commands
 @bot.command()
 async def avatar(ctx, member: str = None):
     if member is None:
