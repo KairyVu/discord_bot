@@ -19,9 +19,9 @@ async def on_ready():
     # await bot.load_extension("operator_data")
 
 
-@bot.event
-async def on_command_error(ctx, error):
-    pass
+# @bot.event
+# async def on_command_error(ctx, error):
+#     pass
 
 # Commands
 @bot.command()
