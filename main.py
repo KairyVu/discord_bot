@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 import os
+import operator_data
 
 # Basic setup
 intents = discord.Intents.default()
@@ -13,8 +14,8 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 # Events
 @bot.event
 async def on_ready():
-    bot.tree.copy_global_to(guild=os.getenv("GUILD_ID"))
-    await bot.tree.sync(guild=os.getenv("GUILD_ID"))
+    bot.tree.copy_global_to(guild=discord.Object(id=int(os.getenv("GUILD_ID"))))
+    await bot.tree.sync(guild=discord.Object(id=int(os.getenv("GUILD_ID")))) 
     # await bot.load_extension("operator_data")
 
 
@@ -52,6 +53,13 @@ async def avatar(ctx, member: str = None):
     
     embed = discord.Embed(title=f"{member.display_name}'s Avatar", color=discord.Color.dark_blue())
     embed.set_image(url=avatar_url)
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def operator(ctx, operator: str, skill: int):
+    embed = discord.Embed(title=f"{operator.replace('-', ' ').title()}'s Skill {skill}", color=discord.Color.dark_blue())
+    embed.add_field(name="", value=f"{operator_data.skill_search(operator, skill)}", inline=True)
     await ctx.send(embed=embed)
 
 
