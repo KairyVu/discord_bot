@@ -3,6 +3,8 @@ from discord.ext import commands
 from discord import app_commands
 import os
 import operator_data
+import typing
+
 
 # Basic setup
 intents = discord.Intents.default()
@@ -16,8 +18,6 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 async def on_ready():
     bot.tree.copy_global_to(guild=discord.Object(id=int(os.getenv("GUILD_ID"))))
     await bot.tree.sync(guild=discord.Object(id=int(os.getenv("GUILD_ID")))) 
-    # await bot.load_extension("operator_data")
-
 
 # @bot.event
 # async def on_command_error(ctx, error):
@@ -56,12 +56,22 @@ async def avatar(ctx, member: str = None):
     await ctx.send(embed=embed)
 
 
-@bot.command()
-async def operator(ctx, operator: str, skill: int):
-    embed = discord.Embed(title=f"{operator.replace('-', ' ').title()}'s Skill {skill}", color=discord.Color.dark_blue())
-    embed.add_field(name="", value=f"{operator_data.skill_search(operator, skill)}", inline=True)
-    await ctx.send(embed=embed)
+@bot.tree.command()
+async def operator(interaction: discord.Interaction, *, operator: str, skill: int):
+    operator_get_data, url = operator_data.skill_search(operator, skill)
+    embed = discord.Embed(title=f"{operator.title()}'s Skill {skill}", color=discord.Color.dark_blue())
+    embed.add_field(name="", value=f"{operator_get_data}", inline=True)
+    if url is not None:
+        embed.set_image(url=url)
+    await interaction.response.send_message(embed=embed)
 
+@operator.autocomplete("operator")
+async def operator(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
+    data = []
+    for partial in operator_data.database:
+        if current.lower() in partial.lower():
+            data.append(app_commands.Choice(name=partial, value=partial))
+    return data
 
 if __name__ == "__main__":
     bot.run(os.getenv("DISCORD_API_TOKEN"))
