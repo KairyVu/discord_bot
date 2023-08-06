@@ -5,6 +5,7 @@ import os
 import operator_data
 import typing
 import logging
+import asyncio
 
 
 # Basic setup
@@ -62,13 +63,22 @@ async def avatar(ctx, member: str = None):
 
 @bot.tree.command()
 async def operator(interaction: discord.Interaction, *, operator: str, skill: int):
-    operator_get_data, text2, url = operator_data.skill_search(operator, skill)
+    skill_brief, text1, text2, text3, text4, text5, url = operator_data.skill_search(operator, skill)
     embed = discord.Embed(title=f"{operator.title()}'s Skill {skill}", color=discord.Color.dark_blue())
-    embed.add_field(name="", value=f"{operator_get_data}", inline=False)
-    embed.add_field(name="", value=f"{text2}", inline=False)
-    # if url is not None:
-    #     embed.set_image(url=url)
+    embed.add_field(name="", value=f"{skill_brief}", inline=False)
+    if text1 is None:
+        pass
+    else:
+        embed.add_field(name="", value=f"{text1}", inline=False)
+        embed.add_field(name="", value=f"{text2}", inline=False)
+        embed.add_field(name="", value=f"{text3}", inline=False)
+        embed.add_field(name="", value=f"{text4}", inline=False)
+        embed.add_field(name="", value=f"{text5}", inline=False)
+
+    if url is not None:
+        embed.set_thumbnail(url=url)
     await interaction.response.send_message(embed=embed)
+
 
 @operator.autocomplete("operator")
 async def operator(interaction: discord.Interaction, current: str) -> typing.List[app_commands.Choice[str]]:
