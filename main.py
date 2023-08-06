@@ -4,9 +4,11 @@ from discord import app_commands
 import os
 import operator_data
 import typing
+import logging
 
 
 # Basic setup
+logging.basicConfig(level=logging.INFO)
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -16,6 +18,8 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 # Events
 @bot.event
 async def on_ready():
+    operator_data.database = operator_data.operator_list()
+    logging.info("Database is ready")
     bot.tree.copy_global_to(guild=discord.Object(id=int(os.getenv("GUILD_ID"))))
     await bot.tree.sync(guild=discord.Object(id=int(os.getenv("GUILD_ID")))) 
 
