@@ -58,11 +58,12 @@ async def avatar(ctx, member: str = None):
 
 @bot.tree.command()
 async def operator(interaction: discord.Interaction, *, operator: str, skill: int):
-    operator_get_data, url = operator_data.skill_search(operator, skill)
+    operator_get_data, text2, url = operator_data.skill_search(operator, skill)
     embed = discord.Embed(title=f"{operator.title()}'s Skill {skill}", color=discord.Color.dark_blue())
-    embed.add_field(name="", value=f"{operator_get_data}", inline=True)
-    if url is not None:
-        embed.set_image(url=url)
+    embed.add_field(name="", value=f"{operator_get_data}", inline=False)
+    embed.add_field(name="", value=f"{text2}", inline=False)
+    # if url is not None:
+    #     embed.set_image(url=url)
     await interaction.response.send_message(embed=embed)
 
 @operator.autocomplete("operator")

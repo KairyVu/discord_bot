@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import random
 
 # Use for update database only
 def operator_list():
@@ -45,8 +46,10 @@ database = ['Swire the Elegant Wit', 'Eyjafjalla the Hvít Aska', 'Typhon', 'Exe
             "'Justice Knight'", 'THRM-EX', 'Castle-3', 'Lancet-2']
 
 
+
 def format_operator(name: str):
     return name.lower().strip().replace(' the', '').replace(' ', '-').replace('\'', '').replace('(', '').replace(')', '')
+
 
 def skill_search(operator_name: str, skill: int):
     r = requests.get(f"https://gamepress.gg/arknights/operator/{format_operator(operator_name)}")
@@ -54,24 +57,38 @@ def skill_search(operator_name: str, skill: int):
     skill_info = soup.find("div", id=f"skill-tab-{skill}")
     if skill_info is None:
         return "*This data is invalid at the moment*", None
+    
     skill_name = skill_info.find("div", class_="h3-custom").text.strip()
-    skill_point = skill_info.find("div", class_="sp-cell")
-    text = f"__**{skill_name}**__\n"
-    for i in range(1, 11):
+
+    sp_charge_type = "SP Charge Type: " + skill_info.find("div", class_="sp-charge-type skill-effect-title").find("a").text.strip()
+    skill_activation = "Skill Activation: " + skill_info.find("div", class_="skill-activation skill-effect-title").find("a").text.strip()
+    text = f"__**{skill_name}**__\n" + f"*{sp_charge_type}*" + "\u2000"*5 +  f"*{skill_activation}*" + "\n\n"
+
+    sp_cost_path = skill_info.find("div", class_="sp-cost")
+    intial_path = skill_info.find("div", class_="initial-sp")
+    duration_path = skill_info.find("div")
+
+    for i in range(1, 8):
         try:
-            sp_cost = skill_point.find("div", class_="sp-cost").select_one(f'[class*="skill-upgrade-tab-{i}"]').text.strip()
-            initial = skill_point.find("div", class_="initial-sp").select_one(f'[class*="skill-upgrade-tab-{i}"]').text.strip()
+            sp_cost = sp_cost_path.select_one(f'[class*="skill-upgrade-tab-{i}"]').text.strip()
+            initial = intial_path.select_one(f'[class*="skill-upgrade-tab-{i}"]').text.strip()
         except:
             break
-        text += f"Skill Point: {sp_cost}\u2000\u2000\u2000\u2000\u2000Initial SP: {initial}\n"
+        
+        text += f"Level {i}\nSkill Point: {sp_cost}" + "\u2000"*5 + f"Initial SP: {initial}" + "\n\n"
+    
+    text2 = ""
+    for i in range(8, 11):
+        try:
+            sp_cost = sp_cost_path.select_one(f'[class*="skill-upgrade-tab-{i}"]').text.strip()
+            initial = intial_path.select_one(f'[class*="skill-upgrade-tab-{i}"]').text.strip()
+        except:
+            break
+        
+        text2 += f"Level 7 M{i-7}\nSkill Point: {sp_cost}" + "\u2000"*5 + f"Initial SP: {initial}" + "\n\n"
 
     # Get image
-    for i in reversed(range(1,4)):
-        image = soup.find("div", id=f"image-tab-{i}")
-        if image is None:
-            continue
-        image_url = image.find("a").get("href")
-        break
-    return text, image_url
+    image = random.choice(soup.select("div[id^=image-tab-]")).find("a")
+    image_url = "https://gamepress.gg" + image.find("img").get("src")
 
-
+    return text, text2 ,image_url
