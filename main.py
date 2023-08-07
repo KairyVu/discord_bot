@@ -5,7 +5,6 @@ import os
 import operator_data
 import typing
 import logging
-import asyncio
 
 
 # Basic setup
@@ -21,7 +20,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 async def on_ready():
     operator_data.database = operator_data.operator_list()
     logging.info("Database is ready")
-    bot.tree.copy_global_to(guild=discord.Object(id=int(os.getenv("GUILD_ID"))))
+    bot.tree.copy_global_to(guild=discord.Object(id=(os.getenv("GUILD_ID"))))
     await bot.tree.sync(guild=discord.Object(id=int(os.getenv("GUILD_ID")))) 
 
 # @bot.event
