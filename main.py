@@ -5,6 +5,7 @@ import os
 import operator_data
 import typing
 import logging
+from dotenv import load_dotenv
 
 
 # Basic setup
@@ -18,6 +19,7 @@ bot = commands.Bot(command_prefix=".", intents=intents)
 # Events
 @bot.event
 async def on_ready():
+    load_dotenv()
     operator_data.database = operator_data.operator_list()
     logging.info("Database is ready")
     bot.tree.copy_global_to(guild=discord.Object(id=(os.getenv("GUILD_ID"))))
@@ -60,7 +62,7 @@ async def avatar(ctx, member: str = None):
     await ctx.send(embed=embed)
 
 
-@bot.tree.command()
+@bot.tree.command(description="Get operator'skills data")
 async def operator(interaction: discord.Interaction, *, operator: str, skill: int):
     skill_brief, text1, text2, text3, text4, text5, url = operator_data.skill_search(operator, skill)
     embed = discord.Embed(title=f"{operator.title()}'s Skill {skill}", color=discord.Color.dark_blue())
